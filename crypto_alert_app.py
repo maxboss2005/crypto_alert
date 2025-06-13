@@ -1,12 +1,14 @@
-import streamlit as st
-import requests
-import pandas as pd
+# Import Required Libraries
+import streamlit as st   # Create the Web Interface
+import requests          # To get data from CoinGecko API
+import pandas as pd      # For handling data (prices and chart)
 
+# Configure the Streamlit Page
 st.set_page_config(page_title="Crypto Price Checker + Alerts", layout="centered")
 
 st.title("💹 Crypto Price Checker + Alerts")
 
-# Cache the coin list to avoid repeated downloads
+# Get all available crypto currencies
 @st.cache_data(ttl=3600)
 def get_all_coins():
     url = "https://api.coingecko.com/api/v3/coins/list"
@@ -14,6 +16,7 @@ def get_all_coins():
     data = response.json()
     return sorted(data, key=lambda x: x["name"])  # Sorted by name for usability
 
+# Get Current Prices
 @st.cache_data(ttl=60)
 def get_current_prices(coin_id, currencies):
     currency_str = ",".join(currencies)
@@ -21,6 +24,7 @@ def get_current_prices(coin_id, currencies):
     data = requests.get(url).json()
     return data.get(coin_id, {})
 
+# Get 7-day Price History 
 @st.cache_data(ttl=60)
 def get_price_history(coin_id):
     url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart?vs_currency=usd&days=7"
@@ -31,28 +35,25 @@ def get_price_history(coin_id):
     df.set_index("timestamp", inplace=True)
     return df
 
-# Load coin list
+# Dropdown for coin selection
 coins = get_all_coins()
 coin_options = [f"{coin['name']} ({coin['symbol'].upper()})" for coin in coins]
 coin_lookup = {f"{coin['name']} ({coin['symbol'].upper()})": coin["id"] for coin in coins}
 
-# --- UI ---
 selected_coin_display = st.selectbox("Select a cryptocurrency", coin_options)
 selected_coin_id = coin_lookup[selected_coin_display]
+
+# Let User choose Currencies and option
 currencies = st.multiselect("Select currencies to view", ["usd", "ngn", "eur"], default=["usd"])
 show_chart = st.checkbox("📈 Show 7-day price chart")
 auto_refresh = st.checkbox("🔄 Auto-refresh every 60 seconds")
 
-# Alert feature
+# Set Price Alert
 st.subheader("🚨 Set Alert Thresholds (USD only)")
 min_price = st.number_input("Minimum price (alert if price goes below)", min_value=0.0, value=0.0, step=0.01)
-max_price = st.number_input("Maximum price (alert if price goes above)", min_value=0.0, value=0.0, step=0.01)
+max_price = st.number_input("Maximum price (alert if price goes above)", min_value=0.0, value=0.0, step=0
 
-# Auto-refresh
-if auto_refresh:
-    st.experimental_rerun()
-
-# --- Price Fetching ---
+# Fetch and Display Current Prices
 st.subheader(f"🔍 Current Price for {selected_coin_display}")
 with st.spinner("Fetching current prices..."):
     prices = get_current_prices(selected_coin_id, currencies)
