@@ -51,7 +51,7 @@ auto_refresh = st.checkbox("🔄 Auto-refresh every 60 seconds")
 # Set Price Alert
 st.subheader("🚨 Set Alert Thresholds (USD only)")
 min_price = st.number_input("Minimum price (alert if price goes below)", min_value=0.0, value=0.0, step=0.01)
-max_price = st.number_input("Maximum price (alert if price goes above)", min_value=0.0, value=0.0, step=0
+max_price = st.number_input("Maximum price (alert if price goes above)", min_value=0.0, value=0.0, step=0.01)
 
 # Fetch and Display Current Prices
 st.subheader(f"🔍 Current Price for {selected_coin_display}")
