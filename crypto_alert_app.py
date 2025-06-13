@@ -1,9 +1,8 @@
 import streamlit as st
 import requests
 import pandas as pd
-import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Crypto Price Checker & Alert", layout="centered")
+st.set_page_config(page_title="Crypto Price Checker + Alerts", layout="centered")
 
 st.title("💹 Crypto Price Checker + Alerts")
 
@@ -78,10 +77,4 @@ with st.spinner("Fetching current prices..."):
 if show_chart:
     st.subheader("📉 7-Day Price Chart (USD)")
     df = get_price_history(selected_coin_id)
-    plt.figure(figsize=(10, 4))
-    plt.plot(df.index, df["price"], label="USD Price", color='blue')
-    plt.xlabel("Date")
-    plt.ylabel("Price (USD)")
-    plt.grid(True)
-    plt.legend()
-    st.pyplot(plt)
+    st.line_chart(df["price"])
